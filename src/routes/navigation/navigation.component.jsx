@@ -26,3 +26,9 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
+// Pinapakita lang ung nasa pinakataas ng website, ung may mga
+// about, signin, blog, etc. kaya tinawag na navigation component
+// tuwing tinatawag ung "Navigation" eto yung tinatawag
+
+// yung link na may /shop - nasa App.jsx ung component nyan
