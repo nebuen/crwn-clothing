@@ -4,6 +4,7 @@ import {
   signInWithRedirect,
   signInWithPopup,
   GoogleAuthProvider,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 //////
@@ -27,25 +28,31 @@ const firebaseApp = initializeApp(firebaseConfig);
 //By setting it to "select_account", the prompt will always ask the user
 //to select their account, ensuring that they are prompted to choose an
 //account even if they have previously signed in.
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-export const auth = getAuth();
 // Sign in with Google using pop-up
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
 // The reason for this is that by using a named function,
-// signInWithGooglePopup, you can export it as a separate function
+// signInWithGooglePopup, you can """export""" it as a separate function
 // from the module, allowing other parts of your code to import and use it.
-
+export const auth = getAuth();
+export const signInWithGooglePopup = () =>
+  signInWithPopup(auth, googleProvider);
+export const signInWithGoogleRedirect = () =>
+  signInWithRedirect(auth, googleProvider);
 // instantiate the firestore para magamit ung doc,getdoc at setdoc
 export const db = getFirestore();
 
 // this is a method/ function
 // getting from the authentication service(google), and then
 // we're going to store that inside of firestore online
-export const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (
+  userAuth,
+  additionalInformation = {}
+) => {
+  if (!userAuth) return;
   // kuha and database or db, then users is ung 'collections' next is ung uid
   const userDocRef = doc(db, "users", userAuth.uid);
   //console.log(userDocRef);
@@ -65,6 +72,7 @@ export const createUserDocumentFromAuth = async (userAuth) => {
         displayName,
         email,
         createdAt,
+        ...additionalInformation,
       });
     } catch (error) {
       console.log("error creating the user", error.message);
@@ -73,4 +81,10 @@ export const createUserDocumentFromAuth = async (userAuth) => {
   // return userDocRef
   return userDocRef;
   // if user data exist
+};
+
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+
+  return await createUserWithEmailAndPassword(auth, email, password);
 };
